@@ -18,6 +18,12 @@ pipeline {
     }
 
     stage('Build & Test') {
+      agent {
+        docker {
+          image 'maven:3.8.5-openjdk-17'
+          args '-v $HOME/.m2:/root/.m2'  // 缓存 Maven 依赖
+        }
+      }
       steps {
         dir("${WAR_DIR}") {
           sh 'mvn clean package'
