@@ -11,7 +11,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/zhongym1113/devops_pipeline_demo.git'
+                git branch: 'master', url: 'https://github.com/zhongym1113/devops_pipeline_demo.git'
             }
         }
 
