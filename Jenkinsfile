@@ -1,60 +1,62 @@
 pipeline {
-  agent any
-
-  environment {
-    APP_NAME = "devops-demo-app"
-    WAR_DIR = "java_web_code"
-    DOCKER_IMAGE = "${APP_NAME}:latest"
-    DOCKER_CONTEXT = "docker/images"
-    HTTP_PORT = 8081
-    CONTAINER_PORT = 8080
-  }
-
-  stages {
-    stage('Checkout') {
-      steps {
-        git url: 'https://github.com/zhongym1113/devops_pipeline_demo.git', branch: 'master'
-      }
-    }
-
-    stage('Build & Test') {
-      agent {
+    agent {
         docker {
-          image 'maven:3.8.5-openjdk-17'
-          args '-v $HOME/.m2:/root/.m2'  // 缓存 Maven 依赖
+            image 'jenkins-docker-maven:latest'
+            args '-v /var/run/docker.sock:/var/run/docker.sock' // 支持 Docker-in-Docker
         }
-      }
-      steps {
-        dir("${WAR_DIR}") {
-          sh 'mvn clean package'
-        }
-      }
     }
 
-    stage('Docker Build') {
-      steps {
-        dir("${DOCKER_CONTEXT}") {
-          sh "docker build -t ${DOCKER_IMAGE} ."
+    environment {
+        MAVEN_OPTS = '-Dmaven.repo.local=/var/jenkins_home/.m2/repository'
+    }
+
+    options {
+        skipDefaultCheckout() // 避免重复 checkout
+        buildDiscarder(logRotator(numToKeepStr: '10')) // 保留最近 10 次构建
+        timeout(time: 30, unit: 'MINUTES')
+    }
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                git branch: 'main', url: 'https://github.com/zhongym1113/devops_pipeline_demo.git'
+            }
         }
-      }
+
+        stage('Build') {
+            steps {
+                // 使用 Maven 构建项目，指定参数
+                sh 'mvn clean install -DskipTests'
+            }
+        }
+
+        stage('Test') {
+            steps {
+                // 可选单元测试阶段
+                sh 'mvn test'
+            }
+        }
+
+        stage('Docker Build & Push') {
+            steps {
+                script {
+                    // 构建 Docker 镜像
+                    def imageName = "my-app:${env.BUILD_NUMBER}"
+                    sh "docker build -t ${imageName} ."
+                    // 推送到私有仓库或 Docker Hub（如已配置登录）
+                    // sh "docker push ${imageName}"
+                }
+            }
+        }
     }
 
-    stage('Deploy') {
-      steps {
-        sh """
-          docker rm -f ${APP_NAME} || true
-          docker run -d --name ${APP_NAME} -p ${HTTP_PORT}:${CONTAINER_PORT} ${DOCKER_IMAGE}
-        """
-      }
+    post {
+        success {
+            echo "Build and Docker process completed successfully!"
+        }
+        failure {
+            echo "Build failed. Please check logs."
+        }
     }
-  }
-
-  post {
-    success {
-      echo "✅ Build & Deploy succeeded! App running at http://localhost:${HTTP_PORT}"
-    }
-    failure {
-      echo "❌ Pipeline failed. Check the logs."
-    }
-  }
 }
