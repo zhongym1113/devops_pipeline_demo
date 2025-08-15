@@ -1,40 +1,54 @@
 pipeline {
-    agent any
+  agent any
 
-    tools {
-        maven 'M3'  // 先去 Jenkins 全局工具配置 Maven
+  environment {
+    APP_NAME = "devops-demo-app"
+    WAR_DIR = "java_web_code"
+    DOCKER_IMAGE = "${APP_NAME}:latest"
+    DOCKER_CONTEXT = "docker/images"
+    HTTP_PORT = 8081
+    CONTAINER_PORT = 8080
+  }
+
+  stages {
+    stage('Checkout') {
+      steps {
+        git url: 'https://github.com/zhongym1113/devops_pipeline_demo/edit/master/Jenkinsfile', branch: 'master'
+      }
     }
 
-    stages {
-        stage('Checkout') {
-            steps {
-                git 'https://github.com/prasanjit-/devops_pipeline_demo.git'
-            }
+    stage('Build & Test') {
+      steps {
+        dir("${WAR_DIR}") {
+          sh 'mvn clean package'
         }
-
-        stage('Build WAR') {
-            steps {
-                dir('java_web_code') {
-                    sh 'mvn clean package'
-                }
-            }
-        }
-
-        stage('Docker Build') {
-            steps {
-                dir('docker/images') {
-                    sh 'docker build -t devops-demo-app .'
-                }
-            }
-        }
-
-        stage('Deploy Container') {
-            steps {
-                sh '''
-                docker rm -f devops-demo-app || true
-                docker run -d --name devops-demo-app -p 8081:8080 devops-demo-app
-                '''
-            }
-        }
+      }
     }
+
+    stage('Docker Build') {
+      steps {
+        dir("${DOCKER_CONTEXT}") {
+          sh "docker build -t ${DOCKER_IMAGE} ."
+        }
+      }
+    }
+
+    stage('Deploy') {
+      steps {
+        sh """
+          docker rm -f ${APP_NAME} || true
+          docker run -d --name ${APP_NAME} -p ${HTTP_PORT}:${CONTAINER_PORT} ${DOCKER_IMAGE}
+        """
+      }
+    }
+  }
+
+  post {
+    success {
+      echo "✅ Build & Deploy succeeded! App running at http://localhost:${HTTP_PORT}"
+    }
+    failure {
+      echo "❌ Pipeline failed. Check the logs."
+    }
+  }
 }
