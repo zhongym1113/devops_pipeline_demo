@@ -13,7 +13,7 @@ pipeline {
   stages {
     stage('Checkout') {
       steps {
-        git url: 'https://github.com/zhongym1113/devops_pipeline_demo/edit/master/Jenkinsfile', branch: 'master'
+        git url: 'https://github.com/zhongym1113/devops_pipeline_demo.git', branch: 'master'
       }
     }
 
