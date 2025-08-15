@@ -17,7 +17,9 @@ pipeline {
 
         stage('Maven Build') {
             steps {
+                dir('java_web_code'){
                 sh 'mvn clean package -DskipTests'
+                }
             }
         }
 
