@@ -1,62 +1,51 @@
 pipeline {
-    agent {
-        docker {
-            image 'jenkins-docker-maven:latest'
-            args '-v /var/run/docker.sock:/var/run/docker.sock' // 支持 Docker-in-Docker
-        }
-    }
+    agent any
 
     environment {
-        MAVEN_OPTS = '-Dmaven.repo.local=/var/jenkins_home/.m2/repository'
-    }
-
-    options {
-        skipDefaultCheckout() // 避免重复 checkout
-        buildDiscarder(logRotator(numToKeepStr: '10')) // 保留最近 10 次构建
-        timeout(time: 30, unit: 'MINUTES')
+        DOCKER_IMAGE = "devops_pipeline_demo"
+        DOCKER_TAG   = "${env.BUILD_NUMBER}"
+        CONTAINER_PORT = "8080"
+        HOST_PORT      = "8080"
     }
 
     stages {
-
         stage('Checkout') {
             steps {
                 git branch: 'main', url: 'https://github.com/zhongym1113/devops_pipeline_demo.git'
             }
         }
 
-        stage('Build') {
+        stage('Maven Build') {
             steps {
-                // 使用 Maven 构建项目，指定参数
-                sh 'mvn clean install -DskipTests'
+                sh 'mvn clean package -DskipTests'
             }
         }
 
-        stage('Test') {
+        stage('Docker Build') {
             steps {
-                // 可选单元测试阶段
-                sh 'mvn test'
+                sh """
+                docker build -t $DOCKER_IMAGE:$DOCKER_TAG .
+                """
             }
         }
 
-        stage('Docker Build & Push') {
+        stage('Run Container for Test') {
             steps {
-                script {
-                    // 构建 Docker 镜像
-                    def imageName = "my-app:${env.BUILD_NUMBER}"
-                    sh "sudo docker build -t ${imageName} ."
-                    // 推送到私有仓库或 Docker Hub（如已配置登录）
-                    // sh "sudo docker push ${imageName}"
-                }
+                sh """
+                docker rm -f $DOCKER_IMAGE || true
+                docker run -d --name $DOCKER_IMAGE -p $HOST_PORT:$CONTAINER_PORT $DOCKER_IMAGE:$DOCKER_TAG
+                """
             }
         }
     }
 
     post {
         success {
-            echo "Build and Docker process completed successfully!"
+            echo "✅ 构建成功，已在本地运行容器：$DOCKER_IMAGE:$DOCKER_TAG"
+            echo "访问地址：http://localhost:$HOST_PORT"
         }
         failure {
-            echo "Build failed. Please check logs."
+            echo "❌ 构建失败，请检查日志"
         }
     }
 }
