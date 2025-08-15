@@ -43,9 +43,9 @@ pipeline {
                 script {
                     // 构建 Docker 镜像
                     def imageName = "my-app:${env.BUILD_NUMBER}"
-                    sh "docker build -t ${imageName} ."
+                    sh "sudo docker build -t ${imageName} ."
                     // 推送到私有仓库或 Docker Hub（如已配置登录）
-                    // sh "docker push ${imageName}"
+                    // sh "sudo docker push ${imageName}"
                 }
             }
         }
