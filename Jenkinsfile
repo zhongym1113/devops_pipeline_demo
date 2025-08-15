@@ -4,8 +4,8 @@ pipeline {
     environment {
         DOCKER_IMAGE = "devops_pipeline_demo"
         DOCKER_TAG   = "${env.BUILD_NUMBER}"
-        CONTAINER_PORT = "8080"
-        HOST_PORT      = "8080"
+        CONTAINER_PORT = "8088"
+        HOST_PORT      = "8088"
     }
 
     stages {
