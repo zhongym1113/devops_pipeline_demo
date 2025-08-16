@@ -3,7 +3,7 @@ pipeline {
 
     stages {
 
-        stage('Checkout') {
+        stage('App code Checkout') {
             steps {
                 git branch: 'master', url: 'https://github.com/zhongym1113/devops_pipeline_demo.git'
                 // 打印目录确认 Dockerfile 是否存在
@@ -11,7 +11,7 @@ pipeline {
             }
         }
 
-        stage('Build') {
+        stage('MVN compile Build') {
             steps {
                 echo "..... Build Phase Started :: Compiling Source Code :: ......"
                 dir('java_web_code') {
@@ -20,7 +20,7 @@ pipeline {
             }
         }
 
-        stage('Test') {
+        stage('Intergration Test') {
             steps {
                 echo "..... Test Phase Started :: Testing via Automated Scripts :: ......"
                 dir('integration-testing') {
