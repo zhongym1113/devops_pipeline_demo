@@ -1,4 +1,4 @@
-  pipeline {
+pipeline {
     agent any
 
     stages {
@@ -6,6 +6,8 @@
         stage('Checkout') {
             steps {
                 git branch: 'master', url: 'https://github.com/zhongym1113/devops_pipeline_demo.git'
+                // 打印目录确认 Dockerfile 是否存在
+                sh 'pwd && ls -la'
             }
         }
 
@@ -36,11 +38,29 @@
             }
         }
 
+        stage('Check Docker') {
+            steps {
+                echo "..... Checking Docker Environment :: ......"
+                sh '''
+                    set -x
+                    which docker
+                    docker version
+                    docker ps
+                '''
+            }
+        }
+
         stage('Provisioning - Build Docker Image') {
             steps {
                 echo "..... Provisioning Phase Started :: Building Docker Container :: ......"
                 dir('docker') {
-                    sh 'sudo docker build -t devops_pipeline_demo .'
+                    sh '''
+                        set -x
+                        echo "Building Docker image..."
+                        # 保存日志到文件，保证失败时日志不会丢
+                        docker build --progress=plain -t devops_pipeline_demo . > docker_build.log 2>&1 || true
+                        cat docker_build.log
+                    '''
                 }
             }
         }
