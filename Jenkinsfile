@@ -26,7 +26,7 @@ pipeline {
         stage('Docker Build') {
             steps {
                 sh """
-                docker build -t $DOCKER_IMAGE:$DOCKER_TAG .
+                docker build -t --progress=plain $DOCKER_IMAGE:$DOCKER_TAG .
                 """
             }
         }
