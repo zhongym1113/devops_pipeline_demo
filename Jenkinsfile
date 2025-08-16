@@ -80,7 +80,7 @@ pipeline {
                     }
 
                     echo "..... Deployment Phase Started :: Running Docker Container :: ......"
-                    sh "sudo docker run -d -p 8180:8080 --name ${container} ${container}"
+                    sh "sudo docker run -d -p 8088:8080 --name ${container} ${container}"
                 }
             }
         }
