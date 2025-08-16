@@ -1,4 +1,4 @@
-FROM servergurus/ubuntu-jdk8
+FROM openjdk:8-jdk
 MAINTAINER Prasanjit Singh <nixgurus@gmail.com>
 
 # setup WildFly 
