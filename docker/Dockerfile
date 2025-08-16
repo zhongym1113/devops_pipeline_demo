@@ -11,7 +11,7 @@ RUN java -version
 
 
 # Expose the ports we're interested in
-EXPOSE 8080 9990 9090
+EXPOSE 8088 9999 9098
 
 # Set the default command to run on boot
 # This will boot WildFly in the standalone mode and bind to all interface
