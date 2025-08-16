@@ -98,7 +98,7 @@ pipeline {
     post {
         always {
             echo "--------------------------------------------------------"
-            echo "View App deployed here: http://server-ip:8180/sample.txt"
+            echo "View App deployed here: http://server-ip:8088/sample.txt"
             echo "--------------------------------------------------------"
         }
     }
