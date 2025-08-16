@@ -69,7 +69,7 @@ pipeline {
                     }
 
                     // 构建完成后可选择清理临时目录
-                    sh 'rm -rf /home/docker_build'
+                   // sh 'rm -rf /home/docker_build'
                 }
             }
         }
