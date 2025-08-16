@@ -40,7 +40,7 @@
             steps {
                 echo "..... Provisioning Phase Started :: Building Docker Container :: ......"
                 dir('docker') {
-                    sh 'docker build -t devops_pipeline_demo .'
+                    sh 'sudo docker build -t devops_pipeline_demo .'
                 }
             }
         }
@@ -50,17 +50,17 @@
                 script {
                     def container = "devops_pipeline_demo"
                     def isRunning = sh(
-                        script: "docker inspect --format='{{ .State.Running }}' ${container} 2>/dev/null || true",
+                        script: "sudo docker inspect --format='{{ .State.Running }}' ${container} 2>/dev/null || true",
                         returnStdout: true
                     ).trim()
 
                     if (isRunning) {
                         echo "Stopping and removing existing container: ${container}"
-                        sh "docker rm -f ${container} || true"
+                        sh "sudo docker rm -f ${container} || true"
                     }
 
                     echo "..... Deployment Phase Started :: Running Docker Container :: ......"
-                    sh "docker run -d -p 8180:8080 --name ${container} ${container}"
+                    sh "sudo docker run -d -p 8180:8080 --name ${container} ${container}"
                 }
             }
         }
