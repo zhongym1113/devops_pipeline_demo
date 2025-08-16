@@ -55,21 +55,21 @@ pipeline {
                 echo "..... Provisioning Phase Started :: Building Docker Container :: ......"
                 script {
                     // 清理临时目录
-                    sh 'rm -rf /tmp/docker_build || true'
-                    // 拷贝 docker 文件夹到 /tmp
-                    sh 'cp -r docker /tmp/docker_build'
+                    sh 'rm -rf /home/docker_build || true'
+                    // 拷贝 docker 文件夹到 /home
+                    sh 'cp -r docker /home/docker_build'
 
-                    dir('/tmp/docker_build') {
+                    dir('/home/docker_build') {
                         sh '''
                             set -x
-                            echo "Building Docker image from /tmp/docker_build..."
+                            echo "Building Docker image from /home/docker_build..."
                             docker build --progress=plain -t devops_pipeline_demo . > docker_build.log 2>&1 || true
                             cat docker_build.log
                         '''
                     }
 
                     // 构建完成后可选择清理临时目录
-                    sh 'rm -rf /tmp/docker_build'
+                    sh 'rm -rf /home/docker_build'
                 }
             }
         }
