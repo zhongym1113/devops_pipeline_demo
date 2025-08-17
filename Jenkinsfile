@@ -89,16 +89,7 @@ pipeline {
             steps {
                 script {
                     def container = "devops_pipeline_demo"
-                    def isRunning = sh(
-                        script: "sudo docker inspect --format='{{ .State.Running }}' ${container} 2>/dev/null || true",
-                        returnStdout: true
-                    ).trim()
-
-                    if (isRunning == "true") {
-                        echo "Stopping and removing existing container: ${container}"
-                        sh "sudo docker rm -f ${container} || true"
-                    }
-
+                    sh "sudo docker rm -f ${container} || true"
                     echo "..... Deployment Phase Started :: Running Docker Container :: ......"
                     sh "sudo docker run -d -p 8088:8080 --name ${container} ${container}:latest"
                 }
