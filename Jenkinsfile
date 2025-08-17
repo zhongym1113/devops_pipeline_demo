@@ -52,6 +52,7 @@ pipeline {
 
         stage('Provisioning - Build Docker Image') {
             steps {
+                script {
                     // 获取 git commit 短 hash
                     def shortCommit = sh(script: "git rev-parse --short HEAD", returnStdout: true).trim()
                     // Jenkins 内置的构建号
@@ -93,13 +94,13 @@ pipeline {
                         returnStdout: true
                     ).trim()
 
-                    if (isRunning) {
+                    if (isRunning == "true") {
                         echo "Stopping and removing existing container: ${container}"
                         sh "sudo docker rm -f ${container} || true"
                     }
 
                     echo "..... Deployment Phase Started :: Running Docker Container :: ......"
-                    sh "sudo docker run -d -p 8088:8080 --name ${container} ${container}"
+                    sh "sudo docker run -d -p 8088:8080 --name ${container} ${container}:latest"
                 }
             }
         }
