@@ -52,24 +52,34 @@ pipeline {
 
         stage('Provisioning - Build Docker Image') {
             steps {
-                echo "..... Provisioning Phase Started :: Building Docker Container :: ......"
-                script {
+                    // 获取 git commit 短 hash
+                    def shortCommit = sh(script: "git rev-parse --short HEAD", returnStdout: true).trim()
+                    // Jenkins 内置的构建号
+                    def buildVersion = "${env.BUILD_NUMBER}"
+                    // 镜像版本号规则：build号+commit
+                    env.IMAGE_TAG = "${buildVersion}-${shortCommit}"
+                    env.IMAGE_NAME = "devops_pipeline_demo"
+
+                    echo "..... Provisioning Phase Started :: Building Docker Container :: ......"
+                    echo "Building Image Tag: ${IMAGE_NAME}:${IMAGE_TAG}"
+
                     // 清理临时目录
                     sh 'rm -rf /home/docker_build || true'
                     // 拷贝 docker 文件夹到 /home
                     sh 'cp -r docker /home/docker_build'
 
                     dir('/home/docker_build') {
-                        sh '''
+                        sh """
                             set -x
                             echo "Building Docker image from /home/docker_build..."
-                            docker build --progress=plain -t devops_pipeline_demo . > docker_build.log 2>&1 || true
+                            docker build --progress=plain -t ${IMAGE_NAME}:${IMAGE_TAG} . > docker_build.log 2>&1
+                            docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${IMAGE_NAME}:latest
                             cat docker_build.log
-                        '''
+                        """
                     }
 
                     // 构建完成后可选择清理临时目录
-                   // sh 'rm -rf /home/docker_build'
+                    // sh 'rm -rf /home/docker_build'
                 }
             }
         }
