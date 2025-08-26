@@ -41,17 +41,17 @@ pipeline {
             }
         }
 
-        stage('Check Docker') {
-            steps {
-                echo "..... Checking Docker Environment :: ......"
-                sh '''
-                    set -x
-                    which docker
-                    docker version
-                    docker ps
-                '''
-            }
-        }
+        // stage('Check Docker') {
+        //    steps {
+        //        echo "..... Checking Docker Environment :: ......"
+        //        sh '''
+        //            set -x
+        //            which docker
+        //            docker version
+        //            docker ps
+        //        '''
+        //    }
+        // }
 
         stage('Provisioning - Build Docker Image') {
             steps {
