@@ -76,8 +76,8 @@ pipeline {
                         sh """
                             set -x
                             echo "Building Docker image from /home/docker_build..."
-                            docker build --progress=plain -t ${IMAGE_NAME}:${IMAGE_TAG} . > docker_build.log 2>&1
-                            docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${IMAGE_NAME}:latest
+                            /usr/local/bin/docker build --progress=plain -t ${IMAGE_NAME}:${IMAGE_TAG} . > docker_build.log 2>&1
+                            /usr/local/bin/docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${IMAGE_NAME}:latest
                             cat docker_build.log
                         """
                     }
@@ -92,9 +92,9 @@ pipeline {
             steps {
                 script {
                     def container = "devops_pipeline_demo"
-                    sh "sudo docker rm -f ${container} || true"
+                    sh "sudo /usr/local/bin/docker rm -f ${container} || true"
                     echo "..... Deployment Phase Started :: Running Docker Container :: ......"
-                    sh "sudo docker run -d -p 8088:8080 --name ${container} ${container}:latest"
+                    sh "sudo /usr/local/bin/docker run -d -p 8088:8080 --name ${container} ${container}:latest"
                 }
             }
         }
