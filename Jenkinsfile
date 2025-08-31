@@ -74,7 +74,6 @@ pipeline {
 
                     dir('docker') {
                         sh """
-                    //        set -x
                             echo "Building Docker image"
                             /usr/local/bin/docker build --progress=plain -t ${IMAGE_NAME}:${IMAGE_TAG} . > docker_build.log 2>&1
                             /usr/local/bin/docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${IMAGE_NAME}:latest
